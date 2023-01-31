@@ -50,11 +50,11 @@ export const getCities = async (keywords: string[]): Promise<City[]> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
 
-    if ("fail" in keywords) {
-        reject(new Error('Failed to load cities, cause of fail word'));
+            if (keywords.join(",").includes("dijon")) {
+        reject(new Error("Failed to calculate distance due to 'dijon' presence in cities passed"));
     }
-    if ("fail" in keywords) {
-                reject(new Error('Failed to load cities, cause of dijon city available'));
+            else if (keywords.join(",").includes("fail")) {
+                reject(new Error("Failed to calculate distance due to 'fail' presence' in cities passed"));
      }
     else {
         if (keywords.length === 0) {

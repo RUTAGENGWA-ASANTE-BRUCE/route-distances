@@ -6,16 +6,8 @@ import { City, DistanceResponse } from '../utils/types';
 export const getDistance = async (origin: City | any, destination: City | any, intermidiateCities: City[] | any, passengers: number|any, date:string|any): Promise<DistanceResponse> => {
   return new Promise((resolve, reject) => {
       setTimeout(() => {
-          var isDijonPresent: Boolean = false;
-          for (var i = 0; i < intermidiateCities?.length; i++) {
-              if (intermidiateCities[i].name === "dijon") {
-                  isDijonPresent = true;
-                  break;
-              }
-          }
-          if (isDijonPresent || origin?.name.toLowerCase() === "dijon" || destination?.name.toLowerCase() === "dijon") {
-          reject(new Error('Failed to calculate distance'));
-          } else {
+
+       
 
               var distanceResponse: DistanceResponse = {
                   distanceBtnCities: [],
@@ -77,7 +69,6 @@ export const getDistance = async (origin: City | any, destination: City | any, i
                   distanceResponse.distanceBtnOriginAndDestination = finalDistance;
               }
               resolve(distanceResponse);
-        }
       }, 200);
     });
   };

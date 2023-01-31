@@ -5,6 +5,7 @@ import { calculateDistance } from '../utils/distance';
 import { getCities} from '../api/cities';
 import { City, DistanceResponse } from '../utils/types'
 import { CircularProgress } from '@mui/material';
+import {Link } from 'react-router-dom'
 interface Props {
 }
 interface smallTableCopmponent {
@@ -13,7 +14,9 @@ interface smallTableCopmponent {
 }
 
 const SearchResults: React.FC<Props> = (props) => {
-    const [loading, setLoading] =useState<Boolean>(true)
+    const [loading, setLoading] = useState<Boolean>(true)
+    var [error, setError] = useState<any>();
+
     const [searchResults, setSearchResults] = React.useState<DistanceResponse>({
         distanceBtnCities: [],
         distanceBtnOriginAndDestination: 0,
@@ -23,11 +26,11 @@ const SearchResults: React.FC<Props> = (props) => {
     const [smallTableComponents, setSmallTableComponents] = React.useState<smallTableCopmponent[]>([
         {
             desc: "Origin",
-            value:  searchResults.distanceBtnCities[0]?.city1.name 
+            value:  searchResults?.distanceBtnCities[0]?.city1?.name 
         },
         {
             desc: "Destination",
-            value: searchResults.distanceBtnCities[searchResults.distanceBtnCities.length-1]?.city2.name
+            value: searchResults?.distanceBtnCities[searchResults.distanceBtnCities.length-1]?.city2?.name
         },
         {
             desc: "Departure",
@@ -53,7 +56,7 @@ const SearchResults: React.FC<Props> = (props) => {
             var originParam = String(params.get("origin"));
             var passengersParam = String(params.get("passengers"));
             var dateParam = String(params.get("date"));
-            var intermidiateCitiesParam = String(params.get("intermidiate_cities"))?.split(",")
+         var intermidiateCitiesParam = String(params.get("intermidiate_cities"))?.split(",")
             const usingParameters = async () => {
                 var citiesInvolved: string[] = [];
 
@@ -64,7 +67,14 @@ const SearchResults: React.FC<Props> = (props) => {
                 //add the destinationCity
                 citiesInvolved.push(destinationParam);
 
-                const validCities: City[] = await getCities(citiesInvolved);
+                var validCities: City[] = [];
+
+                await getCities(citiesInvolved).then(data => {
+                    validCities = data
+                }).catch(error => {
+                    setError(error)
+                    setLoading(false)
+                });
                 const originCity: City = validCities[0];
                 const destinationCity: City = validCities[validCities.length - 1];
                 const intermidiateCities = validCities.filter(city => city.name !== originCity.name && city.name !== destinationCity.name);
@@ -84,11 +94,11 @@ const SearchResults: React.FC<Props> = (props) => {
                         [
                             {
                                 desc: "Origin",
-                                value: searchResults.distanceBtnCities[0]?.city1.name
+                                value: searchResults?.distanceBtnCities[0]?.city1?.name
                             },
                             {
                                 desc: "Destination",
-                                value: searchResults.distanceBtnCities[searchResults.distanceBtnCities.length - 1]?.city2.name
+                                value: searchResults?.distanceBtnCities[searchResults.distanceBtnCities.length - 1]?.city2?.name
                             },
                             {
                                 desc: "Departure",
@@ -118,14 +128,21 @@ const SearchResults: React.FC<Props> = (props) => {
                 usingParameters()
             }
 
-     }, [searchResults]);
+     }, []);
 
 
     return (
         loading ? <div className="flex flex-col min-w-full justify-center items-center pt-5 space-y-3">
             <CircularProgress />
             <p>Loading</p>
-        </div> :
+        </div> : (
+                error ? <div className="flex flex-col min-w-full justify-center items-center pt-5 space-y-5">
+                    <p className="text-[150px] font-bold text-red-500">Oops!</p>
+                    <p>{error?.message}</p>
+                    <Link to={"/"}>
+                    <button className="bg-purple-900 p-2  px-5 text-white  rounded-3xl text-lg">Return to search form</button>
+                    </Link>
+                </div> :
         <div className=' flex w-full p-5 min-h-screen justify-center items-center bg-white'>
             <div className="flex w-full md:w-[800px] min-h-[650px] space-y-10 p-5 rounded-md flex-col">
                 <h1 className="text-3xl font-extralight text-purple-900">Your Flight Details</h1>
@@ -192,7 +209,7 @@ const SearchResults: React.FC<Props> = (props) => {
                 </div>
             </div>
 
-      </div>
+      </div>)
     );
   };
   
