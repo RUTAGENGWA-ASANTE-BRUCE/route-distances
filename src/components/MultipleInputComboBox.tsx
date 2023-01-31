@@ -39,7 +39,8 @@ const MultipleInputComboBox: React.FC<Props> = (props) => {
       id="tags-outlined"
       options={options}
           getOptionLabel={(option) => option.name}
-          value={props.value }
+          value={props.value}
+          
       defaultValue={[]}
           filterSelectedOptions
           onChange={props.handleSelect}

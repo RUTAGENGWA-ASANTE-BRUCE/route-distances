@@ -27,7 +27,7 @@ const SingleInputComboBox: React.FC<Props> = (props) => {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState<readonly City[]>([]);
     const loading = open && options.length === 0;
-
+    const [value, setValue] = React.useState<string>("")
     React.useEffect(() => {
         let active = true;
 
@@ -36,7 +36,7 @@ const SingleInputComboBox: React.FC<Props> = (props) => {
         }
 
         (async () => {
-            await sleep(100); // For demo purposes.
+            await sleep(50); // For demo purposes.
 
             if (active) {
                 var cities = await getCities([]);
@@ -75,9 +75,13 @@ const SingleInputComboBox: React.FC<Props> = (props) => {
             }}
 
             onChange={props.handleSelect}
-            value={props.value}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             getOptionLabel={(option) => option.name}
+            onInputChange={async (event, newInputValue) => {
+                setOptions([])
+                var cities = await getCities([newInputValue]);
+                setOptions(cities);
+            }}
             options={options}
             loading={loading}
             renderInput={(params) => (

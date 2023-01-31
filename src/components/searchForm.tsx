@@ -70,8 +70,8 @@ import { Link } from 'react-router-dom'
             console.log(origin)
         };
         const handleOriginChange = (event: any) => {
-            const city:City= event.target.value
-            setOrigin(city);
+            //const city:City= event.target.value
+            //setOrigin(city);
         }
         const handleDestinationSelect = (event: React.SyntheticEvent<Element, Event>, city: City | null) => {
             setDestination(city);
@@ -195,18 +195,13 @@ import { Link } from 'react-router-dom'
             
                 const results = await getDistance(origin, destination, intermediateCities, passengers, date)
                 setSearchResults(results);
-                console.log(results);
             }
           
 
 
             if (originParam && destinationParam  && passengersParam && dateParam  && intermidiateCitiesParamSting) {
                 usingParameters()
-                console.log("origin", originParam)
-                console.log("destination", destinationParam)
-                console.log("passengers", passengersParam)
-                console.log("date", dateParam)
-                console.log("intermidiate_cities", intermidiateCitiesParamSting)
+               
             }
 
             validateForm();
