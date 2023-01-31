@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AirplanemodeActive from '@mui/icons-material/AirplanemodeActive'
 import SingleInputComboBox from './SingleInputComboBox'
 import MultipleInputComboBox from './MultipleInputComboBox'
@@ -7,9 +7,10 @@ import UnLoadingSingleInputComboBox from './UnLoadingSingleInputComboBox'
 import { DatePickerDescktop, DatePickerMobile } from './DatePickers'
 import Button from '@material-ui/core/Button';
 import * as yup from "yup";
-import { City, formErrors } from '../utils/types'
+import { City, formErrors, DistanceResponse } from '../utils/types'
 import dayjs from 'dayjs'
 import { getDistance } from '../api/distance';
+import SearchResults from './searchResults';
 
     interface MyFormValues {
       cityOfOrigin: string;
@@ -17,6 +18,7 @@ import { getDistance } from '../api/distance';
       numberOfPassengers: string;
       intermidiateCities: string;
       dateOfTrip: string;
+
     }
 
     const validationSchema = yup.object({
@@ -42,11 +44,17 @@ import { getDistance } from '../api/distance';
     const SearchForm: React.FC<Props> = (props) => {
         const [origin, setOrigin] = React.useState<City | null>(null);
         const [destination, setDestination] = React.useState<City | null>(null);
-        const [intermediateCities, setIntermediateCities] = React.useState<City[] | null>([]);
+        const [intermediateCities, setIntermediateCities] = React.useState<City[]| null>([]);
         const [date, setDate] = React.useState<string | null>();
         const [passengers, setPassengers] = React.useState<number | null>(null);
         const [searchTerm, setSearchTerm] = React.useState('');
-        const [searchResults, setSearchResults] = React.useState<City[]|null>([]);
+        const [showForm, setShowForm] = useState<Boolean>(false);
+        const [searchResults, setSearchResults] = React.useState<DistanceResponse>({
+            distanceBtnCities: [],
+            distanceBtnOriginAndDestination: 0,
+            passengers: 0,
+            date: ""
+        });
         const [loading, setLoading] = React.useState(false);
         const [error, setError] = React.useState('');
         const [formErrors, setFormErrors] = React.useState<formErrors>({
@@ -169,17 +177,9 @@ import { getDistance } from '../api/distance';
                     setIntermediateCities(intermidiateCitiesPassed);
 
                 }
-                console.log(
-                    {
-                        origin: originParam,
-                        destination: destinationParam,
-                        date: dateParam,
-                        passengers: passengersParam,
-                        intermidiateCities: intermidiateCitiesParam,
-                        intermediateCitiesFound: intermidiateCitiesPassed
-                    }
-                )
-                const results = await getDistance(origin, destination, intermediateCities)
+            
+                const results = await getDistance(origin, destination, intermediateCities, passengers, date)
+                setSearchResults(results);
                 console.log(results);
             }
 
@@ -192,7 +192,9 @@ import { getDistance } from '../api/distance';
         }, [origin, destination, date, passengers]);
 
 
-      return (
+        return (
+            showForm ? (
+
         <div className=' flex w-full p-5 min-h-screen justify-center items-center bg-gray-100'>
   
               <form
@@ -212,7 +214,10 @@ import { getDistance } from '../api/distance';
                 Submit
               </Button>
             </form>
-        </div>
+                </div>
+            ) : (
+                <SearchResults searchResults={searchResults} />
+                    )
       )
     }
 

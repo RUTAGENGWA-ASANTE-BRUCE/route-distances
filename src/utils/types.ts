@@ -4,6 +4,19 @@ interface City {
     longitude: number;
 }
 
+interface DistanceResponse {
+    distanceBtnOriginAndDestination: number,
+    distanceBtnCities: DistanceBtnCities[],
+    passengers: number;
+    date: string;
+}
+
+interface DistanceBtnCities {
+    city1: City;
+    city2: City;
+    routeDistance: number
+}
+
 
 
 interface formErrors {
@@ -15,5 +28,6 @@ interface formErrors {
 
 export type {
     City,
-    formErrors
+    formErrors,
+    DistanceResponse
 }

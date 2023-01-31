@@ -9,6 +9,6 @@ export const calculateDistance = (city1: City|any, city2: City|any): number => {
       Math.cos(city1?.latitude * (Math.PI / 180)) * Math.cos(city2?.latitude * (Math.PI / 180)) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // distance in km
+    return Math.ceil(R * c); // distance in km
 };
   

@@ -9,7 +9,6 @@ const App: React.FC = () => {
     <Routes>
 
       <Route path="/"  element={<SearchForm />} />
-      <Route path="/results" element={<SearchResults />} />
     </Routes>
     </BrowserRouter>
   );
