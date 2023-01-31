@@ -128,7 +128,7 @@ const SearchResults: React.FC<Props> = (props) => {
                 usingParameters()
             }
 
-     }, []);
+     }, [searchResults]);
 
 
     return (
@@ -140,7 +140,7 @@ const SearchResults: React.FC<Props> = (props) => {
                     <p className="text-[150px] font-bold text-red-500">Oops!</p>
                     <p>{error?.message}</p>
                     <Link to={"/"}>
-                    <button className="bg-purple-900 p-2  px-5 text-white  rounded-3xl text-lg">Return to search form</button>
+                        <button className="bg-purple-900 p-2  px-5 text-white  rounded-3xl text-lg">Return to search form</button>
                     </Link>
                 </div> :
         <div className=' flex w-full p-5 min-h-screen justify-center items-center bg-white'>
