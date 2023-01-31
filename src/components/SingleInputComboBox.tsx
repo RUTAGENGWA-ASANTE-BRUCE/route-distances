@@ -11,10 +11,6 @@ function sleep(delay = 0) {
     });
 }
 
-
-
-
-
 interface Props {
     formPartLabel: string;
     handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -27,7 +23,6 @@ const SingleInputComboBox: React.FC<Props> = (props) => {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState<readonly City[]>([]);
     const loading = open && options.length === 0;
-    const [value, setValue] = React.useState<string>("")
     React.useEffect(() => {
         let active = true;
 

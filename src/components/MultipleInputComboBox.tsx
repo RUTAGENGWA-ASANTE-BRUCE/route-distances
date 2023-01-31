@@ -1,19 +1,14 @@
 import * as React from 'react';
-import Chip from '@mui/material/Chip';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import Stack from '@mui/material/Stack';
 import { City } from '../utils/types';
 import { getCities } from '../api/cities';
-import {useField} from 'formik'
-
 
 interface Props {
   formPartLabel: string;
     handleSelect: (event: React.SyntheticEvent<Element, Event>, cities: City[] | null) => void;
     value:any;
 }
-
 
 
 const MultipleInputComboBox: React.FC<Props> = (props) => {
@@ -31,7 +26,6 @@ const MultipleInputComboBox: React.FC<Props> = (props) => {
     label:props.formPartLabel,
     
   }
-
 
   return (
     <Autocomplete

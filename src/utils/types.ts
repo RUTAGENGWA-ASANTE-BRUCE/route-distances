@@ -22,7 +22,6 @@ interface DistanceBtnCities {
 }
 
 
-
 interface formErrors {
     origin: string,
     destination: string,
