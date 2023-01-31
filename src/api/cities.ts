@@ -57,7 +57,7 @@ export const getCities = async (keyword: string): Promise<City[]> => {
         const results = cities.filter((city) => city.name.toLowerCase().includes(keyword.toLowerCase()));
         resolve(results);
       }
-    }, 1000);
+    }, 500);
   });
 };
 
@@ -79,6 +79,6 @@ export const getCities2 = async (keywords: string[]): Promise<City[]> => {
         })
         resolve(citiesFound);
     }
-        }, 1000);
+        }, 50);
     });
 };

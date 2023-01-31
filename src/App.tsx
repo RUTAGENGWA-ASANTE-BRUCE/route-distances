@@ -8,8 +8,9 @@ const App: React.FC = () => {
     <BrowserRouter>
     <Routes>
 
-      <Route path="/"  element={<SearchForm />} />
-    </Routes>
+              <Route path="/" element={<SearchForm />} />
+              <Route path="/search_results" element={<SearchResults />} />
+              </Routes>
     </BrowserRouter>
   );
 };

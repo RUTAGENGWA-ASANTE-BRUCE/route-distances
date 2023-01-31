@@ -3,6 +3,10 @@ interface City {
     latitude: number;
     longitude: number;
 }
+interface error {
+    messaage: string;
+}
+
 
 interface DistanceResponse {
     distanceBtnOriginAndDestination: number,
@@ -29,5 +33,6 @@ interface formErrors {
 export type {
     City,
     formErrors,
-    DistanceResponse
+    DistanceResponse,
+    error
 }

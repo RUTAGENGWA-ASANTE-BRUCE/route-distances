@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getDistance } from '../api/distance';
 import { calculateDistance } from '../utils/distance';
-import { DistanceResponse } from '../utils/types'
-
+import { getCities, getCities2 } from '../api/cities';
+import { City, DistanceResponse } from '../utils/types'
+import { CircularProgress } from '@mui/material';
 interface Props {
-    searchResults: DistanceResponse
 }
 interface smallTableCopmponent {
     desc: string,
@@ -13,122 +13,179 @@ interface smallTableCopmponent {
 }
 
 const SearchResults: React.FC<Props> = (props) => {
+    const [loading, setLoading] =useState<Boolean>(true)
+    const [searchResults, setSearchResults] = React.useState<DistanceResponse>({
+        distanceBtnCities: [],
+        distanceBtnOriginAndDestination: 0,
+        passengers: 0,
+        date: ""
+    });
     const [smallTableComponents, setSmallTableComponents] = React.useState<smallTableCopmponent[]>([
         {
             desc: "Origin",
-            value:  props.searchResults.distanceBtnCities[0]?.city1.name 
+            value:  searchResults.distanceBtnCities[0]?.city1.name 
         },
         {
             desc: "Destination",
-            value: props.searchResults.distanceBtnCities[props.searchResults.distanceBtnCities.length-1]?.city2.name
+            value: searchResults.distanceBtnCities[searchResults.distanceBtnCities.length-1]?.city2.name
         },
         {
             desc: "Departure",
-            value: props.searchResults?.date
+            value: searchResults?.date.substr(searchResults?.date.length - 12)
         },
         {
             desc: "Total distance",
-            value: props.searchResults?.distanceBtnOriginAndDestination
+            value: searchResults?.distanceBtnOriginAndDestination
         },
         {
             desc: "Arrival",
-            value: props.searchResults?.date
+            value: searchResults?.date.substr(searchResults?.date.length - 12)
         },
         {
             desc: "Passengers",
-            value: props.searchResults?.passengers
+            value: searchResults?.passengers
         },
     ])
-    React.useEffect(() => {
-        setSmallTableComponents(
-            [
-                {
-                    desc: "Origin",
-                    value: props.searchResults.distanceBtnCities[0]?.city1.name
-                },
-                {
-                    desc: "Destination",
-                    value: props.searchResults.distanceBtnCities[props.searchResults.distanceBtnCities.length - 1]?.city2.name
-                },
-                {
-                    desc: "Departure",
-                    value: props.searchResults?.date
-                },
-                {
-                    desc: "Total distance",
-                    value: props.searchResults?.distanceBtnOriginAndDestination
-                },
-                {
-                    desc: "Arrival",
-                    value: props.searchResults?.date
-                },
-                {
-                    desc: "Passengers",
-                    value: props.searchResults?.passengers
-                },
-            ]
-        )
-    }, [props.searchResults])
+     React.useEffect(() => {
+
+            const params = new URLSearchParams(window.location.search);
+            var destinationParam = String(params.get("destination"));
+            var originParam = String(params.get("origin"));
+            var passengersParam = String(params.get("passengers"));
+            var dateParam = String(params.get("date"));
+            var intermidiateCitiesParam = String(params.get("intermidiate_cities"))?.split(",")
+            const usingParameters = async () => {
+                var citiesInvolved: string[] = [];
+
+                //add the originCity
+                citiesInvolved.push(originParam);
+                //add all intermidiate cities;
+                intermidiateCitiesParam?.forEach(cityName => { citiesInvolved.push(cityName) })
+                //add the destinationCity
+                const validCities: City[] = await getCities2(citiesInvolved);
+                citiesInvolved.push(destinationParam);
+                const originCity: City = validCities[0];
+                const destinationCity: City = validCities[validCities.length - 1];
+                const intermidiateCities = validCities.filter(city => city.name !== originCity.name && city.name !== destinationCity.name);
+                var passengers=parseInt(String(passengersParam));
+                var date=dateParam;
+
+                if (originParam ==="") {
+                    alert(`Specify the city of origin`)
+                }
+                if (destinationParam === "") {
+                    alert(`'Specify the city of destination`)
+                }
+                else {
+                    const results = await getDistance(originCity, destinationCity, intermidiateCities, passengers, date)
+                setSearchResults(results);
+                console.log(results);
+                setSmallTableComponents(
+                        [
+                            {
+                                desc: "Origin",
+                                value: searchResults.distanceBtnCities[0]?.city1.name
+                            },
+                            {
+                                desc: "Destination",
+                                value: searchResults.distanceBtnCities[searchResults.distanceBtnCities.length - 1]?.city2.name
+                            },
+                            {
+                                desc: "Departure",
+                                value: searchResults?.date.substr(searchResults?.date.length - 12)
+                            },
+                            {
+                                desc: "Total distance",
+                                value: `${searchResults?.distanceBtnOriginAndDestination} Km`
+                            },
+                            {
+                                desc: "Arrival",
+                                value: searchResults?.date.substr(searchResults?.date.length - 12)
+                            },
+                            {
+                                desc: "Passengers",
+                                value: searchResults?.passengers
+                            },
+                        ]
+                    )
+                    if (searchResults.distanceBtnCities.length !==0) {
+                        setLoading(false)
+                    }
+                }
+            }
+
+            if (originParam && destinationParam && passengersParam && dateParam && intermidiateCitiesParam) {
+                usingParameters()
+                
+            }
+
+        }, [searchResults]);
+
+
     return (
+        loading ? <div className="flex flex-col min-w-full justify-center items-center pt-5 space-y-3">
+            <CircularProgress />
+            <p>Loading</p>
+        </div> :
         <div className=' flex w-full p-5 min-h-screen justify-center items-center bg-white'>
             <div className="flex w-full md:w-[800px] min-h-[650px] space-y-10 p-5 rounded-md flex-col">
                 <h1 className="text-3xl font-extralight text-purple-900">Your Flight Details</h1>
-                <p className="text-xl font-semibold text-purple-900">{props.searchResults?.date}</p>
-                <div className="flex  bg-gray-100 flex-col w-full space-y-4">
+                <p className="text-xl font-semibold text-purple-900">{searchResults?.date}</p>
+                <div className="flex  bg-purple-50 flex-col w-full space-y-4">
                     <div className="flex p-5 flex-row justify-between w-full">
-                        <h5 className="w-fit text-[70px] font-bold mt-5 text-purple-900">{props.searchResults?.distanceBtnCities[0]?.city1.name}</h5>
+                        <h5 className="w-fit text-[70px] font-bold mt-5 text-purple-900">{searchResults?.distanceBtnCities[0]?.city1.name}</h5>
                         <img src={"airplane.gif"} className="w-52 h-40 object-contain rounded-md " />
                        
-                        <h5 className="w-fit text-[70px] font-bold mt-5 text-purple-900">{props.searchResults?.distanceBtnCities[props.searchResults?.distanceBtnCities.length-1]?.city2.name}</h5>
+                        <h5 className="w-fit text-[70px] font-bold mt-5 text-purple-900">{searchResults?.distanceBtnCities[searchResults?.distanceBtnCities.length-1]?.city2.name}</h5>
                     </div>
                     <div className="flex flex-row p-5 justify-between">
                         <div className="flex flex-col">
                             <div className="flex flex-row">
                                 <div className="flex flex-col space-y-2 w-fit mr-2">
-                                    <p className="text-gray-500">Departure</p>
-                                    <p className="text-gray-500">Check-in</p>
-                                    <p className="text-gray-500">Passengers</p>
+                                    <p className="text-gray-500 text-sm">Departure</p>
+                                    <p className="text-gray-500 text-sm">Check-in</p>
+                                    <p className="text-gray-500 text-sm">Passengers</p>
                                 </div>
                                 <div className="flex flex-col space-y-2">
-                                    <p className="text-gray-500">{props.searchResults?.date}</p>
-                                    <p className="text-gray-500">Enabled</p>
-                                    <p className="text-gray-500">{props.searchResults?.passengers}</p>
+                                    <p className="text-gray-500 text-sm">{searchResults?.date.substr(searchResults?.date.length-12)}</p>
+                                    <p className="text-gray-500 text-sm">Enabled</p>
+                                    <p className="text-gray-500 text-sm">{searchResults?.passengers}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="flex flex-col space-y-2">
-                        {props.searchResults?.distanceBtnCities.map(distanceDesc => (
+                        {searchResults?.distanceBtnCities.map(distanceDesc => (
                             <div className="flex flex-row   ">
-                                <p className="w-28 mr-2 text-gray-500">{distanceDesc?.city1?.name} - {distanceDesc?.city2?.name}</p>
-                                    <p className="text-gray-500">: &nbsp;{distanceDesc?.routeDistance} Km</p>
+                                <p className="w-40 mr-2 text-gray-500">{distanceDesc?.city1?.name} - {distanceDesc?.city2?.name}</p>
+                                <p className="text-gray-500 text-sm">: &nbsp;{distanceDesc?.routeDistance} Km</p>
                                 </div>
                             ))}
                         </div>
                         <div className="flex flex-col">
                             <div className="flex flex-row">
                                 <div className="flex flex-col space-y-2 w-fit mr-2">
-                                    <p className="text-gray-500">Arrival</p>
-                                    <p className="text-gray-500">Total distance</p>
-                                    <p className="text-gray-500">On Time</p>
+                                    <p className="text-gray-500 text-sm">Arrival</p>
+                                    <p className="text-gray-500 text-sm">Total distance</p>
+                                    <p className="text-gray-500 text-sm">On Time</p>
                                 </div>
                                 <div className="flex flex-col space-y-2">
-                                    <p className="text-gray-500">{props.searchResults?.date}</p>
-                                    <p className="text-gray-500">{props.searchResults?.distanceBtnOriginAndDestination} Km   </p>
+                                    <p className="text-gray-500 text-sm">{searchResults?.date.substr(searchResults?.date.length - 12)}</p>
+                                    <p className="text-gray-500 text-sm">{searchResults?.distanceBtnOriginAndDestination} Km   </p>
                                     <div className="flex flex-row space-x-2">
                                         <div className="flex w-3 h-3 mt-1.5 rounded-full bg-green-600" />
-                                        <p>True</p>
+                                        <p className="text-sm">True</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-row w-full border-t">
-                        {smallTableComponents.map(component => (
+                    <div className="flex flex-row w-full border-t border-black">
+                        {smallTableComponents.map((component,index) => (
 
-                        <div className="flex flex-col w-1/6 border-2 border-r ">
-                                <div className="flex  justify-center items-center h-10  w-full text-purple-900    border-b font-bold">
+                            <div className={`flex flex-col w-1/6  ${smallTableComponents.length - 1 !== index && "border-r"} border-black`}>
+                                <div className={`flex  justify-center items-center h-10  w-full text-purple-900  border-black   border-b font-bold`}>
                                     {component.desc} </div>
-                                <div className="flex  justify-center items-center h-10 w-full">{component.value}</div>
+                                <div className="flex  justify-center items-center h-10 w-full text-sm">{component.value}</div>
                         </div>
                             ))}
 

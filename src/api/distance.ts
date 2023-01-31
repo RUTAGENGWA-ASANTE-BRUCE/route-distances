@@ -78,7 +78,7 @@ export const getDistance = async (origin: City | any, destination: City | any, i
                   resolve(distanceResponse);
               }
         }
-      }, 1000);
+      }, 500);
     });
   };
   

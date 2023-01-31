@@ -10,7 +10,7 @@ import * as yup from "yup";
 import { City, formErrors, DistanceResponse } from '../utils/types'
 import dayjs from 'dayjs'
 import { getDistance } from '../api/distance';
-import SearchResults from './searchResults';
+import { Link } from 'react-router-dom'
 
     interface MyFormValues {
       cityOfOrigin: string;
@@ -88,7 +88,7 @@ import SearchResults from './searchResults';
 
 
         const handleDateSelect = (date: dayjs.Dayjs | null) => {
-            setDate(date?.toISOString());
+            setDate(date?.toString());
             
         };
 
@@ -153,20 +153,20 @@ import SearchResults from './searchResults';
         React.useEffect(() => {
 
             const params = new URLSearchParams(window.location.search);
-            var destinationParam = String(params.get("destination"));
-            var originParam = String(params.get("origin"));
-            var passengersParam = String(params.get("passengers"));
-            var dateParam = String(params.get("date"));
+            var destinationParam = params.get("destination");
+            var originParam =params.get("origin");
+            var passengersParam = params.get("passengers");
+            var dateParam =params.get("date");
             var intermidiateCitiesParam = String(params.get("intermidiate_cities"))?.split(",")
 
             const usingParameters = async () => {
-                const originCity:City[]= await getCities(originParam);
-                const destinationCity: City[] = await getCities(destinationParam);
+                const originCity:City[]= await getCities(String(originParam));
+                const destinationCity: City[] = await getCities(String(destinationParam));
                 const intermidiateCitiesPassed: City[] = await getCities2(intermidiateCitiesParam);
-                if (originCity.length===0) {
+                if (originParam && originCity.length === 0) {
                     alert(`'${originCity}' city doesn't exist`)
                 }
-                if (destinationCity.length === 0) {
+                if (destinationParam && destinationCity.length === 0) {
                     alert(`'${destinationCity}' city doesn't exist`)
                 }
                 else {
@@ -193,7 +193,6 @@ import SearchResults from './searchResults';
 
 
         return (
-            showForm ? (
 
         <div className=' flex w-full p-5 min-h-screen justify-center items-center bg-gray-100'>
   
@@ -209,15 +208,16 @@ import SearchResults from './searchResults';
                   <SingleInputComboBox value={destination} formError={formErrors.destination} handleSelect={handleDestinationSelect} handleChange={handleDestinationChange} formPartLabel={"City of destination"} />
                   <MultipleInputComboBox value={intermediateCities} handleSelect={handleIntermediateCitySelect} formPartLabel={"Intermediate cities"} />
                   <UnLoadingSingleInputComboBox value={passengers} type={"number"} handleChange={handlePassengersChange} formError={formErrors.passengers} formPartLabel={"Number of passengers"} />
-                  <DatePickerDescktop formError={formErrors.date} handleSelect={handleDateSelect} formPartLabel={"Date of trip"} />
-                  <Button style={{ color: "white", background: "rgb(126 34 206)", padding:10 }} color="primary" variant="contained" fullWidth type="submit">
-                Submit
-              </Button>
+                    <DatePickerDescktop formError={formErrors.date} handleSelect={handleDateSelect} formPartLabel={"Date of trip"} />
+                    <Link to={isFormValid ? `/search_results?origin=${origin?.name}&destination=${destination?.name}&date=${date}&passengers=${passengers}&intermidiate_cities=${intermediateCities?.map(city => city.name).join(',')}` : ""}>
+
+                      <Button style={{ color: "white", background: "rgb(126 34 206)", padding:10 }} color="primary" variant="contained" fullWidth type="submit">
+                        Submit
+                       </Button>
+                    </Link>
             </form>
                 </div>
-            ) : (
-                <SearchResults searchResults={searchResults} />
-                    )
+       
       )
     }
 
