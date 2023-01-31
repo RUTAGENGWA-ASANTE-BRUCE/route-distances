@@ -44,41 +44,34 @@ const cities: City[] = [
   { name: "Aix-en-Provence",  latitude :  43.529742, longitude: 5.447427},
 ];
 
-export const getCities = async (keyword: string): Promise<City[]> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (keyword.toLowerCase() === 'fail') {
-        reject(new Error('Failed to load cities'));
-      } 
-      else if(keyword === ''){
-        resolve(cities);
-      }
-      else {
-        const results = cities.filter((city) => city.name.toLowerCase().includes(keyword.toLowerCase()));
-        resolve(results);
-      }
-    }, 500);
-  });
-};
 
 
-export const getCities2 = async (keywords: string[]): Promise<City[]> => {
+export const getCities = async (keywords: string[]): Promise<City[]> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
 
     if ("fail" in keywords) {
-        reject(new Error('Failed to load cities'));
-         }
-    else {
-        var citiesFound: City[] = [];
-        keywords.forEach(keyword => {
-            const results = cities.filter((city) => city.name.toLowerCase()===keyword.toLowerCase());
-            results.forEach(city => {
-                citiesFound.push(city)
-            });
-        })
-        resolve(citiesFound);
+        reject(new Error('Failed to load cities, cause of fail word'));
     }
-        }, 50);
+    if ("fail" in keywords) {
+                reject(new Error('Failed to load cities, cause of dijon city available'));
+     }
+    else {
+        if (keywords.length === 0) {
+            resolve(cities);
+        }
+        else {
+
+            var citiesFound: City[] = [];
+            keywords.forEach(keyword => {
+                const results = cities.filter((city) => city.name.toLowerCase()===keyword.toLowerCase());
+                results.forEach(city => {
+                    citiesFound.push(city)
+                });
+            })
+            resolve(citiesFound);
+        }
+    }
+        }, 500);
     });
 };

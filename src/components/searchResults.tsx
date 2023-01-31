@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getDistance } from '../api/distance';
 import { calculateDistance } from '../utils/distance';
-import { getCities, getCities2 } from '../api/cities';
+import { getCities} from '../api/cities';
 import { City, DistanceResponse } from '../utils/types'
 import { CircularProgress } from '@mui/material';
 interface Props {
@@ -62,14 +62,14 @@ const SearchResults: React.FC<Props> = (props) => {
                 //add all intermidiate cities;
                 intermidiateCitiesParam?.forEach(cityName => { citiesInvolved.push(cityName) })
                 //add the destinationCity
-                const validCities: City[] = await getCities2(citiesInvolved);
                 citiesInvolved.push(destinationParam);
+
+                const validCities: City[] = await getCities(citiesInvolved);
                 const originCity: City = validCities[0];
                 const destinationCity: City = validCities[validCities.length - 1];
                 const intermidiateCities = validCities.filter(city => city.name !== originCity.name && city.name !== destinationCity.name);
                 var passengers=parseInt(String(passengersParam));
                 var date=dateParam;
-
                 if (originParam ==="") {
                     alert(`Specify the city of origin`)
                 }
@@ -78,8 +78,8 @@ const SearchResults: React.FC<Props> = (props) => {
                 }
                 else {
                     const results = await getDistance(originCity, destinationCity, intermidiateCities, passengers, date)
+
                 setSearchResults(results);
-                console.log(results);
                 setSmallTableComponents(
                         [
                             {
@@ -116,10 +116,9 @@ const SearchResults: React.FC<Props> = (props) => {
 
             if (originParam && destinationParam && passengersParam && dateParam && intermidiateCitiesParam) {
                 usingParameters()
-                
             }
 
-        }, [searchResults]);
+     }, [searchResults]);
 
 
     return (
@@ -133,10 +132,10 @@ const SearchResults: React.FC<Props> = (props) => {
                 <p className="text-xl font-semibold text-purple-900">{searchResults?.date}</p>
                 <div className="flex  bg-purple-50 flex-col w-full space-y-4">
                     <div className="flex p-5 flex-row justify-between w-full">
-                        <h5 className="w-fit text-[70px] font-bold mt-5 text-purple-900">{searchResults?.distanceBtnCities[0]?.city1.name}</h5>
+                        <h5 className="w-fit text-[50px] font-bold mt-10 text-purple-900">{searchResults?.distanceBtnCities[0]?.city1.name}</h5>
                         <img src={"airplane.gif"} className="w-52 h-40 object-contain rounded-md " />
                        
-                        <h5 className="w-fit text-[70px] font-bold mt-5 text-purple-900">{searchResults?.distanceBtnCities[searchResults?.distanceBtnCities.length-1]?.city2.name}</h5>
+                        <h5 className="w-fit text-[50px] font-bold mt-10 text-purple-900">{searchResults?.distanceBtnCities[searchResults?.distanceBtnCities.length-1]?.city2.name}</h5>
                     </div>
                     <div className="flex flex-row p-5 justify-between">
                         <div className="flex flex-col">
@@ -156,7 +155,7 @@ const SearchResults: React.FC<Props> = (props) => {
                         <div className="flex flex-col space-y-2">
                         {searchResults?.distanceBtnCities.map(distanceDesc => (
                             <div className="flex flex-row   ">
-                                <p className="w-40 mr-2 text-gray-500">{distanceDesc?.city1?.name} - {distanceDesc?.city2?.name}</p>
+                                <p className="w-40 mr-2 text-gray-500 text-sm">{distanceDesc?.city1?.name} - {distanceDesc?.city2?.name}</p>
                                 <p className="text-gray-500 text-sm">: &nbsp;{distanceDesc?.routeDistance} Km</p>
                                 </div>
                             ))}

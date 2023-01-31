@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import AirplanemodeActive from '@mui/icons-material/AirplanemodeActive'
 import SingleInputComboBox from './SingleInputComboBox'
 import MultipleInputComboBox from './MultipleInputComboBox'
-import { getCities, getCities2 } from '../api/cities';
+import { getCities} from '../api/cities';
 import UnLoadingSingleInputComboBox from './UnLoadingSingleInputComboBox'
 import { DatePickerDescktop, DatePickerMobile } from './DatePickers'
 import Button from '@material-ui/core/Button';
@@ -65,8 +65,9 @@ import { Link } from 'react-router-dom'
         });
       const [isFormValid, setIsFormValid] = React.useState(false);
         const handleOriginSelect = (event: React.SyntheticEvent<Element, Event>, city: City | null) => {
-          setOrigin(city);
-          setOrigin(city);
+            setOrigin(city);
+            console.log(city)
+            console.log(origin)
         };
         const handleOriginChange = (event: any) => {
             const city:City= event.target.value
@@ -154,27 +155,41 @@ import { Link } from 'react-router-dom'
 
             const params = new URLSearchParams(window.location.search);
             var destinationParam = params.get("destination");
-            var originParam =params.get("origin");
-            var passengersParam = params.get("passengers");
-            var dateParam =params.get("date");
-            var intermidiateCitiesParam = String(params.get("intermidiate_cities"))?.split(",")
+            var originParam = params.get("origin");
+            var passengersParam =params.get("passengers");
+            var dateParam = params.get("date");
+            var intermidiateCitiesParamSting = params.get("intermidiate_cities");
+            var intermidiateCitiesParam = String(intermidiateCitiesParamSting)?.split(",")
 
             const usingParameters = async () => {
-                const originCity:City[]= await getCities(String(originParam));
-                const destinationCity: City[] = await getCities(String(destinationParam));
-                const intermidiateCitiesPassed: City[] = await getCities2(intermidiateCitiesParam);
-                if (originParam && originCity.length === 0) {
-                    alert(`'${originCity}' city doesn't exist`)
+                var citiesInvolved: string[] = [];
+
+                //add the originCity
+                citiesInvolved.push(String(originParam));
+                //add all intermidiate cities;
+                intermidiateCitiesParam?.forEach(cityName => { citiesInvolved.push(cityName) })
+                //add the destinationCity
+                citiesInvolved.push(String(destinationParam));
+
+                const validCities: City[] = await getCities(citiesInvolved);
+                const originCity: City = validCities[0];
+                const destinationCity: City = validCities[validCities.length - 1];
+                const intermidiateCitiesFound = validCities.filter(city => city.name !== originCity.name && city.name !== destinationCity.name);
+                var passengers = parseInt(String(passengersParam));
+                var date = dateParam;
+
+                if (originParam === "") {
+                    alert(`Specify the city of origin`)
                 }
-                if (destinationParam && destinationCity.length === 0) {
-                    alert(`'${destinationCity}' city doesn't exist`)
+                if (destinationParam === "") {
+                    alert(`'Specify the city of destination`)
                 }
                 else {
-                    setOrigin(originCity[0]);
-                    setDestination(destinationCity[0]);
+                    setOrigin(originCity);
+                    setDestination(destinationCity);
                     setPassengers(parseInt(String(passengersParam)));
                     setDate(dateParam);
-                    setIntermediateCities(intermidiateCitiesPassed);
+                    setIntermediateCities(intermidiateCitiesFound);
 
                 }
             
@@ -182,10 +197,16 @@ import { Link } from 'react-router-dom'
                 setSearchResults(results);
                 console.log(results);
             }
+          
 
-            if (originParam && destinationParam && passengersParam && dateParam && intermidiateCitiesParam) {
+
+            if (originParam && destinationParam  && passengersParam && dateParam  && intermidiateCitiesParamSting) {
                 usingParameters()
-                
+                console.log("origin", originParam)
+                console.log("destination", destinationParam)
+                console.log("passengers", passengersParam)
+                console.log("date", dateParam)
+                console.log("intermidiate_cities", intermidiateCitiesParamSting)
             }
 
             validateForm();
@@ -209,12 +230,22 @@ import { Link } from 'react-router-dom'
                   <MultipleInputComboBox value={intermediateCities} handleSelect={handleIntermediateCitySelect} formPartLabel={"Intermediate cities"} />
                   <UnLoadingSingleInputComboBox value={passengers} type={"number"} handleChange={handlePassengersChange} formError={formErrors.passengers} formPartLabel={"Number of passengers"} />
                     <DatePickerDescktop formError={formErrors.date} handleSelect={handleDateSelect} formPartLabel={"Date of trip"} />
-                    <Link to={isFormValid ? `/search_results?origin=${origin?.name}&destination=${destination?.name}&date=${date}&passengers=${passengers}&intermidiate_cities=${intermediateCities?.map(city => city.name).join(',')}` : ""}>
+                    {isFormValid ?
+                    (
+                    <Link to={`/search_results?origin=${origin?.name}&destination=${destination?.name}&date=${date}&passengers=${passengers}&intermidiate_cities=${intermediateCities?.map(city => city.name).join(',')}`}>
 
-                      <Button style={{ color: "white", background: "rgb(126 34 206)", padding:10 }} color="primary" variant="contained" fullWidth type="submit">
+                        <Button  style={{ color: "white", background: "rgb(126 34 206)", padding: 10 }} color="primary" variant="contained" fullWidth type="submit">
                         Submit
                        </Button>
-                    </Link>
+                            </Link>
+                            )
+                        :
+                        (
+                            <Button disabled style={{ color: "white", background: "rgb(126 34 206)", padding: 10 }} color="primary" variant="contained" fullWidth type="submit">
+                                Submit
+                            </Button>
+                            )
+                        }
             </form>
                 </div>
        

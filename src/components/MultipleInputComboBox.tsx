@@ -22,8 +22,8 @@ const MultipleInputComboBox: React.FC<Props> = (props) => {
 
   React.useEffect(() => {
     (async () => {
-      const cities = await getCities('');
-      setOptions([...cities]);
+      const cities = await getCities([]);
+      setOptions(cities);
     })();
   }, [])
 

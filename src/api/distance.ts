@@ -34,7 +34,7 @@ export const getDistance = async (origin: City | any, destination: City | any, i
                       city1: origin,
                       city2: destination,
                           routeDistance: finalDistance
-                   })
+                  })
               }
               else {
                   //final distance
@@ -75,10 +75,10 @@ export const getDistance = async (origin: City | any, destination: City | any, i
                   })
 
                   distanceResponse.distanceBtnOriginAndDestination = finalDistance;
-                  resolve(distanceResponse);
               }
+              resolve(distanceResponse);
         }
-      }, 500);
+      }, 200);
     });
   };
   
